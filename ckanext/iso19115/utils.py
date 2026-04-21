@@ -212,9 +212,10 @@ def codelist_names() -> Container[str]:
 @functools.lru_cache()
 def codelist_options(name: str) -> list[CodeListValue]:
     xml = ltree.XML(_codelists.open("rb").read())
-    xpath = f"//cat:codelistItem/cat:CT_Codelist[@id='{name}']/cat:codeEntry/cat:CT_CodelistValue"
+    # Use variable substitution to prevent XPath injection
+    xpath = "//cat:codelistItem/cat:CT_Codelist[@id=$name]/cat:codeEntry/cat:CT_CodelistValue"
     namespaces = {"cat": xml.nsmap["cat"], "gco": xml.nsmap["gco"]}
-    codes = xml.xpath(xpath, namespaces=namespaces)
+    codes = xml.xpath(xpath, namespaces=namespaces, name=name)
 
     return [
         CodeListValue(
